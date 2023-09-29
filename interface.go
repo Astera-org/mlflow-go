@@ -1,13 +1,11 @@
 package mlflow
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"log"
 	"net/url"
 	"os"
-	"path/filepath"
 	"reflect"
 	"strings"
 	"sync"
@@ -35,10 +33,6 @@ const (
 	defaultExperimentID = "0"
 	// https://github.com/mlflow/mlflow/blob/da4fe0f1509ff5062016b2efc05e73876db118c2/mlflow/entities/experiment.py#L14
 	defaultName = "Default"
-
-	// These are obelisk specific, does not correspond to open source mlflow.
-	tokenPath          = "mlflow-token.txt"
-	defaultTrackingURI = "https://dbc-e67ede65-16bc.cloud.databricks.com"
 )
 
 var (
@@ -106,17 +100,14 @@ func NewTracking(uri, bearerToken string, l *log.Logger) (Tracking, error) {
 		uri = os.Getenv(TrackingURIEnvName)
 	}
 	if uri == "" {
-		uri = defaultTrackingURI
+		return nil, fmt.Errorf("uri not specified and no %q found, but it's required", TrackingURIEnvName)
 	}
 	parsed, err := url.Parse(uri)
 	if err != nil {
 		return nil, err
 	}
 	if bearerToken == "" {
-		bearerToken = getToken(l)
-	}
-	if bearerToken == "" && uri == defaultTrackingURI {
-		return nil, fmt.Errorf("no %q found, but it's required for tracking server %s", tokenPath, uri)
+		bearerToken = os.Getenv(BearerTokenEnvName)
 	}
 	switch parsed.Scheme {
 	case "file", "":
@@ -133,57 +124,6 @@ func NewTracking(uri, bearerToken string, l *log.Logger) (Tracking, error) {
 var activeRunMtx sync.Mutex
 var activeRun Run = nil
 
-func getToken(l *log.Logger) string {
-	token := os.Getenv(BearerTokenEnvName)
-	if token != "" {
-		return token
-	}
-	var f *os.File
-	var err error
-
-	// Check current directory and its ancestors.
-	dir := "."
-	for {
-		dir, err = filepath.Abs(dir)
-		if err != nil {
-			if l != nil {
-				l.Printf("getToken() failed to get absolute path for %q: %v", dir, err)
-			}
-			return ""
-		}
-		if f, err = os.Open(filepath.Join(dir, tokenPath)); err == nil {
-			break
-		}
-		parent := filepath.Dir(dir)
-		// Hit root of repo or file system.
-		if _, err = os.Stat(filepath.Join(dir, ".git")); err == nil || parent == dir {
-			break
-		} else {
-			dir = parent
-			continue
-		}
-	}
-
-	if f == nil {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			f, err = os.Open(filepath.Join(homeDir, tokenPath))
-		}
-		if err != nil {
-			if l != nil {
-				l.Printf("getToken() failed to find a file named %q in CWD, its ancestors, or home dir", tokenPath)
-			}
-			return ""
-		}
-	}
-	defer f.Close()
-	scanner := bufio.NewScanner(f)
-	if !scanner.Scan() {
-		return ""
-	}
-	return scanner.Text()
-}
-
 // Returns the singleton active run. If it has not been set,
 // a new run will be created in the experiment named experimentName.
 // If experimentName is not set, falls back to:
@@ -196,6 +136,9 @@ func ActiveRunFromEnv(experimentName string, l *log.Logger) (Run, error) {
 	return getActiveRun(experimentName, l, os.Getenv)
 }
 
+// Same as ActiveRunFromEnv, but uses the given struct as the source of config values.
+// The struct must have string fields named that match the environment variable names,
+// e.g. MLFLOW_TRACKING_URI.
 func ActiveRunFromConfig(experimentName string, l *log.Logger, config interface{}) (Run, error) {
 	return getActiveRun(experimentName, l, func(key string) string {
 		return stringFieldFromStruct(key, config)
@@ -285,6 +228,7 @@ func stringFieldFromStruct(key string, config interface{}) string {
 	return field.String()
 }
 
+// LogStructAsParams logs the fields of the given obj as params.
 func LogStructAsParams(run Run, obj interface{}) error {
 	objVal := reflect.ValueOf(obj)
 	if objVal.Kind() == reflect.Ptr {
