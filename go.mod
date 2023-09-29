@@ -1,6 +1,6 @@
 module github.com/Astera-org/mlflow-go
 
-go 1.21.1
+go 1.19
 
 require (
 	github.com/google/uuid v1.3.1
