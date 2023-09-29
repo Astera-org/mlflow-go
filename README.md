@@ -23,6 +23,8 @@ After a `bazel test //...`, you should be able to find the Go binary like so:
 find -L bazel-mlflow-go/external -wholename "*/bin/go"
 ```
 
+Install [pre-commit](https://pre-commit.com/).
+
 ### Manual tests
 
 There are some tests that assume something about the environment.
