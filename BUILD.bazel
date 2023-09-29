@@ -1,0 +1,63 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
+
+go_library(
+    name = "mlflow",
+    srcs = [
+        "dbfs_artifact_repo.go",
+        "file_artifact_repo.go",
+        "file_experiment.go",
+        "file_run.go",
+        "file_store.go",
+        "interface.go",
+        "rest_store.go",
+    ],
+    importpath = "github.com/Astera-org/mlflow-go",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//mlflow:protos_go",
+        "@com_github_google_uuid//:uuid",
+        "@in_gopkg_yaml_v3//:yaml_v3",
+    ],
+)
+
+go_test(
+    name = "mlflow_test",
+    timeout = "short",
+    srcs = [
+        "file_test.go",
+        "interface_test.go",
+        "rest_store_test.go",
+    ],
+    embed = [":mlflow"],
+    deps = [
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
+)
+
+go_test(
+    name = "dbfs_artifact_repo_test",
+    timeout = "short",
+    srcs = ["dbfs_artifact_repo_test.go"],
+    embed = [":mlflow"],
+    gotags = ["manual"],
+    tags = ["manual"],
+)
+
+proto_library(
+    name = "protos",
+    srcs = glob(["protos/**/*.proto"]),
+    strip_import_prefix = "protos",
+    deps = [
+        "@com_google_protobuf//:descriptor_proto",
+    ],
+)
+
+go_proto_library(
+    name = "protos_go",
+    importpath = "github.com/Astera-org/mlflow-go/protos",
+    protos = [":protos"],
+    visibility = ["__subpackages__"],
+)

@@ -1,0 +1,12 @@
+{
+    "files.watcherExclude": {
+        "bazel-*/**": true
+    },
+    "python.analysis.exclude": [
+        "bazel-*"
+    ],
+    "python.formatting.provider": "none", // Use black instead
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    }
+}

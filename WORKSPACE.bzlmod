@@ -1,0 +1,37 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+_RULES_GO_COMMIT = "1347b5a773af132741724d8b05868ba5ada58199"
+
+http_archive(
+    name = "io_bazel_rules_go",
+    sha256 = "3d81e92e93360746716ca435a09d69e72ead40873b34732cc5c142883619bd9d",
+    strip_prefix = "rules_go-%s" % _RULES_GO_COMMIT,
+    urls = [
+        "https://github.com/bazelbuild/rules_go/archive/%s.zip" % _RULES_GO_COMMIT,
+    ],
+)
+
+http_archive(
+    name = "bazel_gazelle",
+    sha256 = "d3fa66a39028e97d76f9e2db8f1b0c11c099e8e01bf363a923074784e451f809",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.33.0/bazel-gazelle-v0.33.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.33.0/bazel-gazelle-v0.33.0.tar.gz",
+    ],
+)
+
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
+
+go_rules_dependencies()
+
+go_register_toolchains(version = "1.21.1")
+
+gazelle_dependencies(go_repository_default_config = "//:WORKSPACE.bzlmod")
+
+go_repository(
+    name = "org_golang_x_tools",
+    importpath = "golang.org/x/tools",
+    sum = "h1:Iey4qkscZuv0VvIt8E0neZjtPVQFSc870HQ448QgEmQ=",
+    version = "v0.13.0",
+)

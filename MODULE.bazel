@@ -1,0 +1,9 @@
+"""Bazel module file. See https://bazel.build/external/overview#bzlmod."""
+
+module(
+    name = "mlflow_go",
+    version = "0.0.1",
+)
+
+bazel_dep(name = "rules_proto", version = "5.3.0-21.7", dev_dependency = True)
+bazel_dep(name = "protobuf", version = "21.7", dev_dependency = True, repo_name = "com_google_protobuf")
