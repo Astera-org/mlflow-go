@@ -1,5 +1,9 @@
 //go:build manual
 
+// Manual because it assumes it can connect to an MLFlow server.
+// To run this test, you need to set the following environment variables:
+// MLFLOW_TRACKING_URI: the URI of the MLFlow server.
+
 package mlflow
 
 import (

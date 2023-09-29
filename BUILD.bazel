@@ -38,9 +38,9 @@ go_test(
 )
 
 go_test(
-    name = "dbfs_artifact_repo_test",
+    name = "artifact_repo_test",
     timeout = "short",
-    srcs = ["dbfs_artifact_repo_test.go"],
+    srcs = ["artifact_repo_test.go"],
     embed = [":mlflow"],
     gotags = ["manual"],
     tags = ["manual"],
