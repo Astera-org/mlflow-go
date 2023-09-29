@@ -1,0 +1,30 @@
+# reference: https://pre-commit.com/
+repos:
+  - repo: https://github.com/psf/black
+    # The `refs/tags/<tag>:refs/tags/<tag>` is needed for black's required-version to work:
+    # https://github.com/psf/black/issues/2493#issuecomment-1081987650
+    rev: refs/tags/23.3.0:refs/tags/23.3.0
+    hooks:
+      - id: black
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.53.3
+    hooks:
+      - id: golangci-lint
+        args: ["--new-from-rev=HEAD~1"]
+
+  - repo: https://github.com/garymm/bazel-buildifier-pre-commit-hooks
+    rev: v6.1.2
+    hooks:
+      - id: bazel-buildifier
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      # TODO: add more!
+      - id: trailing-whitespace

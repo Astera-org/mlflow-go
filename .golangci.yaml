@@ -1,0 +1,7 @@
+linters:
+  disable-all: true
+  # Enable specific linter
+  # https://golangci-lint.run/usage/linters/
+  # TODO: enable more
+  enable:
+    - goimports
