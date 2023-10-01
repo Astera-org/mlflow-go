@@ -1,10 +1,3 @@
-//go:build bazel
-
-// ^^Regarding the above "go:build" directive:
-// Go tool doesn't like mixing go and C++ in one directory,
-// but this file is only really used by the conformance test
-// which is built by bazel.
-
 package main
 
 import (
