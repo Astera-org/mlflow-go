@@ -46,7 +46,6 @@ python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python_version = "3.11"
 
 python.toolchain(python_version = python_version)
-
 use_repo(python, "python_3_11")
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
