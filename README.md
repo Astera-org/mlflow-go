@@ -2,21 +2,21 @@
 
 Go MLFlow client.
 
-Supports the tracking API, with local files and HTTP.
+Supports the Tracking API, with local files and HTTP.
 
 ## Usage
 
-The API is modeled after the official Python client, so the [official MLFlow docs](https://mlflow.org/docs/latest/tracking.html) may be useful.
-
-Authentication to Databricks-hosted MLFlow is only supported via access token, not via Databricks username and password.
-Follow the [instructions](https://docs.databricks.com/dev-tools/api/latest/authentication.html#generate-a-personal-access-token)
-to get a personal access token.
+See the examples in [conformance/main.go](conformance/main.go), or fully
+rendered documentation on [pkg.go.dev](https://pkg.go.dev/github.com/Astera-org/mlflow-go).
 
 ## Development
 
 Install Bazel using [Bazelisk](https://github.com/bazelbuild/bazelisk/blob/master/README.md).
+Some tests require Bazel to run (i.e. they are *not* run by `go test`).
 
-You can install Go on your own or use the version that Bazel downloads.
+If you want to use the `go` tool instead of / in addition to Bazel, you can install Go on your
+own or use the version that Bazel downloads.
+
 After a `bazel test //...`, you should be able to find the Go binary like so:
 
 ```sh
@@ -32,11 +32,8 @@ They can be run with `go test -tags manual`, or by specifying the exact
 target to `bazel test`. When making changes to the code that is not well-covered by
 the unit tests, please run the manual tests.
 
-### Protocol Buffers
+You can list the manual tests with:
 
-The .proto files in the [protos](protos) directory are copied from the official mlflow repo.
-Unfortunately not everybody uses Bazel, and so we have to check in the generated
-protocol buffer Go code.
-To download the latest .proto files and regenerate the .pb.go files, run
-[update_protos.sh](tools/update_protos.sh).
-
+```sh
+bazel query "attr(tags, '\\bmanual\\b', //...)"
+```

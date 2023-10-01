@@ -1,3 +1,18 @@
+// Package mlflow implements an MLFlow client.
+//
+// It supports the Tracking API, with local files and HTTP.
+// The API is modeled after the official Python client, so the [official MLFlow docs] may be useful.
+//
+// Authentication to Databricks-hosted MLFlow is only supported via access token, not via Databricks username and password.
+// Follow the [personal acess token instructions] to get one.
+//
+// The API is organized into a hierarchy of interfaces:
+// - [Tracking]: represents a connection to an MLFlow tracking server.
+// - [Experiment]: represents an MLFlow experiment.
+// - [Run]: represents an MLFlow run.
+//
+// [official MLFlow docs]: https://mlflow.org/docs/latest/tracking.html
+// [personal acess token instructions]: https://docs.databricks.com/dev-tools/api/latest/authentication.html#generate-a-personal-access-token
 package mlflow
 
 import (
@@ -127,18 +142,19 @@ var activeRun Run = nil
 // Returns the singleton active run. If it has not been set,
 // a new run will be created in the experiment named experimentName.
 // If experimentName is not set, falls back to:
-// 1. The value of the MLFLOW_EXPERIMENT_ID environment variable.
+// 1. The value of the [ExperimentIDEnvName] environment variable.
 // 2. The experiment with ID "0".
-// This doesn't currently match the semantics of the python client.
-// In particular we don't have nested runs and we don't switch to
-// a new run if the active run finishes.
+//
+// Differences from the python client:
+// - Doesn't create nested runs.
+// - No automatic switching to a new run if the active run finishes.
 func ActiveRunFromEnv(experimentName string, l *log.Logger) (Run, error) {
 	return getActiveRun(experimentName, l, os.Getenv)
 }
 
 // Same as ActiveRunFromEnv, but uses the given struct as the source of config values.
 // The struct must have string fields named that match the environment variable names,
-// e.g. MLFLOW_TRACKING_URI.
+// e.g. [TrackingURIEnvName].
 func ActiveRunFromConfig(experimentName string, l *log.Logger, config interface{}) (Run, error) {
 	return getActiveRun(experimentName, l, func(key string) string {
 		return stringFieldFromStruct(key, config)
