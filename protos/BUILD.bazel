@@ -1,0 +1,32 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_go//proto:def.bzl", "go_proto_library")
+load("@rules_go//go:def.bzl", "go_library")
+
+proto_library(
+    name = "protos",
+    srcs = glob(["**/*.proto"]),
+    strip_import_prefix = "/protos",
+    deps = ["@com_google_protobuf//:descriptor_proto"],
+)
+
+# This is used only in tools/update_protos.sh.
+# protos_go_pregen is used in the actual build, since it's faster.
+# We need the pregenerated .pb.go files to suport users of the `go` tool,
+# so we may as well use them to speed up the build.
+go_proto_library(
+    name = "protos_go",
+    importpath = "github.com/Astera-org/mlflow-go/protos",
+    protos = [":protos"],
+)
+
+go_library(
+    name = "protos_go_pregen",
+    srcs = glob(["*.pb.go"]),
+    importpath = "github.com/Astera-org/mlflow-go/protos",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "@org_golang_google_protobuf//reflect/protoreflect",
+        "@org_golang_google_protobuf//runtime/protoimpl",
+        "@org_golang_google_protobuf//types/descriptorpb",
+    ],
+)
