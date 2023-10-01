@@ -31,7 +31,9 @@ class TC(unittest.TestCase):
             gunicorn_path = runfiles.Rlocation("_main/conformance/gunicorn")
             if not os.path.exists(gunicorn_path):
                 raise RuntimeError(f"Could not find gunicorn binary at {gunicorn_path}")
-            os.environ["PATH"] = os.path.dirname(gunicorn_path) + ":" + os.environ["PATH"]
+            os.environ["PATH"] = (
+                os.path.dirname(gunicorn_path) + ":" + os.environ["PATH"]
+            )
         logging.info(
             "Starting MLFlow server on port %d with file store %s",
             port,
@@ -56,7 +58,9 @@ class TC(unittest.TestCase):
         up = False
         for _ in range(10):
             try:
-                up = requests.get(f"{server_uri}/api/2.0/mlflow/experiments/get?experiment_id=0")
+                up = requests.get(
+                    f"{server_uri}/api/2.0/mlflow/experiments/get?experiment_id=0"
+                )
                 break
             except requests.exceptions.ConnectionError:
                 time.sleep(0.5)
