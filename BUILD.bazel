@@ -16,7 +16,7 @@ go_library(
     importpath = "github.com/Astera-org/mlflow-go",
     visibility = ["//visibility:public"],
     deps = [
-        ":protos_go",
+        ":protos_go_pregen",
         "@com_github_google_uuid//:uuid",
         "@in_gopkg_yaml_v3//:yaml_v3",
     ],
@@ -50,14 +50,26 @@ proto_library(
     name = "protos",
     srcs = glob(["protos/**/*.proto"]),
     strip_import_prefix = "protos",
-    deps = [
-        "@com_google_protobuf//:descriptor_proto",
-    ],
+    deps = ["@com_google_protobuf//:descriptor_proto"],
 )
 
+# This is used only in tools/update_protos.sh.
+# protos_go_pregen is used in the actual build, since it's faster.
+# We need the pregenerated .pb.go files to suport users of the `go` tool,
+# so we may as well use them to speed up the build.
 go_proto_library(
     name = "protos_go",
     importpath = "github.com/Astera-org/mlflow-go/protos",
     protos = [":protos"],
-    visibility = ["__subpackages__"],
+)
+
+go_library(
+    name = "protos_go_pregen",
+    srcs = glob(["protos/*.pb.go"]),
+    importpath = "github.com/Astera-org/mlflow-go/protos",
+    deps = [
+        "@org_golang_google_protobuf//reflect/protoreflect",
+        "@org_golang_google_protobuf//runtime/protoimpl",
+        "@org_golang_google_protobuf//types/descriptorpb",
+    ],
 )

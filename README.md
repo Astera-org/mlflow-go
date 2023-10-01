@@ -36,7 +36,7 @@ the unit tests, please run the manual tests.
 
 The .proto files in the [protos](protos) directory are copied from the official mlflow repo.
 Unfortunately not everybody uses Bazel, and so we have to check in the generated
-protocol buffer code.
+protocol buffer Go code.
 To download the latest .proto files and regenerate the .pb.go files, run
-[update_protos.sh](update_protos.sh).
+[update_protos.sh](tools/update_protos.sh).
 
