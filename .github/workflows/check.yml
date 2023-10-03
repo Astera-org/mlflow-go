@@ -11,25 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-
     - name: mount bazel cache
       uses: actions/cache@v3
       with:
         path: "~/.cache/bazel"
         key: bazel-coverage
-
     - run: |
         bazel \
           --bazelrc=.github/workflows/ci.bazelrc \
           coverage \
           //...
-
-    # TODO: enable once we connect the app and get a token
-    # - uses: codecov/codecov-action@v3
-    #   with:
-    #     token: ${{ secrets.CODECOV_TOKEN }}
-    #     files: ./bazel-out/_coverage/_coverage_report.dat
-    #     fail_ci_if_error: true
+    - uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./bazel-out/_coverage/_coverage_report.dat
+        fail_ci_if_error: true
 
   go:
     runs-on: ubuntu-latest
