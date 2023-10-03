@@ -7,7 +7,7 @@
 // Follow the [personal acess token instructions] to get one.
 //
 // The API is organized into a hierarchy of interfaces:
-// - [Tracking]: represents a connection to an MLFlow tracking server.
+// - [Tracking]: represents an MLFlow tracking server.
 // - [Experiment]: represents an MLFlow experiment.
 // - [Run]: represents an MLFlow run.
 //
@@ -54,6 +54,9 @@ var (
 	ErrUnsupported = errors.New("this operation not supported by this tracking client")
 )
 
+// Tracking is an interface for an MLFlow tracking server.
+// It is generally used indirectly via [ActiveRunFromEnv], or you can create one with
+// [NewTracking].
 type Tracking interface {
 	ExperimentsByName() (map[string]Experiment, error)
 	CreateExperiment(name string) (Experiment, error)
@@ -105,8 +108,16 @@ type Run interface {
 	ExperimentID() string
 }
 
+// ArtifactRepo is an interface for logging artifacts.
+// It is generally used indirectly via [Run.LogArtifact].
 type ArtifactRepo interface {
+	// localPath is the path to the file on the local filesystem.
+	// artifactPath is the directory in the artifact repo to upload the file to.
+	// Kinda weird, but this is how the python client does it.
 	LogArtifact(localPath, artifactPath string) error
+	// LogArtifacts logs all of the files in a directory tree as artifacts.
+	// localPath is the path to the directory on the local filesystem.
+	// artifactPath is the directory in the artifact repo to upload to.
 	LogArtifacts(localDir, artifactPath string) error
 }
 
