@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 )
 
+// FileArtifactRepo writes to a local file system.
+// Generally it is used indirectly via [Run.LogArtifact].
 type FileArtifactRepo struct {
 	rootDir string
 }

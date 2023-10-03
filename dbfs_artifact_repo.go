@@ -1,8 +1,9 @@
-// When modifying please run the manual test for this file with:
-// go test -v -tags manual ./mlflow/go
-// or
-// bazel test --test_output=all //mlflow/go:dbfs_artifact_repo_test
 package mlflow
+
+// When modifying please run the manual test for this file with:
+// go test -v -tags manual ./...
+// or
+// bazel test --test_output=all //:dbfs_artifact_repo_test
 
 import (
 	"bytes"
@@ -23,9 +24,11 @@ const (
 	dbfsMaxUploadFileSize = 64 * 1024 * 1024
 )
 
-// Based on
-// https://github.com/mlflow/mlflow/blob/e7ff52d724e3218704fde225493e52c5acd41bb6/mlflow/store/artifact/databricks_artifact_repo.py
+// DBFSArtifactRepo uploads to DBFS (Databricks File System).
+// Generally it is used indirectly via [Run.LogArtifact].
 type DBFSArtifactRepo struct {
+	// Based on
+	// https://github.com/mlflow/mlflow/blob/e7ff52d724e3218704fde225493e52c5acd41bb6/mlflow/store/artifact/databricks_artifact_repo.py
 	rest     *RESTStore
 	rootPath string
 	runID    string
@@ -44,9 +47,7 @@ func NewDBFSArtifactRepo(restStore *RESTStore, uri string) (ArtifactRepo, error)
 	return &DBFSArtifactRepo{restStore, parsed.Path, path.Base(path.Dir(parsed.Path))}, nil
 }
 
-// localPath is the path to the file on the local filesystem.
-// artifactPath is the directory in the artifact repo to upload the file to.
-// Kinda weird, but this is how the python client does it.
+// Implements [ArtifactRepo.LogArtifact].
 func (repo *DBFSArtifactRepo) LogArtifact(localPath, artifactPath string) error {
 	destPath := path.Join(artifactPath, path.Base(localPath))
 	getCredsReq := protos.GetCredentialsForWrite{
@@ -107,7 +108,7 @@ func (repo *DBFSArtifactRepo) LogArtifact(localPath, artifactPath string) error 
 	return nil
 }
 
-// localPath is the path to the directory on the local filesystem.
+// Implements [ArtifactRepo.LogArtifacts].
 func (repo *DBFSArtifactRepo) LogArtifacts(localPath, artifactPath string) error {
 	// We want to keep only the last directory in the path.
 	// This is because the python client does this.

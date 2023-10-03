@@ -1,6 +1,6 @@
 # mlflow-go
 
-Go MLFlow client.
+Go [MLFlow](https://mlflow.org) client.
 
 Supports the Tracking API, with local files and HTTP.
 
