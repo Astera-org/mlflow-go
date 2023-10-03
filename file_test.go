@@ -44,12 +44,13 @@ func TestRun(t *testing.T) {
 	created, err := exp.CreateRun("run0")
 	require.NoError(t, err)
 
-	got, err := exp.GetRun(created.(*fileRun).RunID)
+	got, err := exp.GetRun(created.ID())
 	require.NoError(t, err)
 
-	assert.Equal(t, got.(*fileRun).RunID, created.(*fileRun).RunID)
+	assert.Equal(t, got.ID(), created.ID())
 
 	assert.NoError(t, got.SetName("new name"))
+	assert.Equal(t, "new name", got.Name())
 
 	const tagKey = "tag0"
 	const tagVal = "val0"
@@ -58,5 +59,25 @@ func TestRun(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, gotTag, tagVal)
 
+	metrics := []Metric{
+		{Key: "metric0", Val: 0.0},
+		{Key: "metric0", Val: 1.0},
+		{Key: "metric1", Val: 0.1},
+	}
+	require.NoError(t, created.LogMetrics(metrics, 0))
+	require.NoError(t, created.LogMetrics(metrics, 1))
+
+	params := []Param{
+		{Key: "param0", Val: "val0"},
+		{Key: "param1", Val: "val1"},
+	}
+	require.NoError(t, created.LogParams(params))
+	_, err = created.GetParam("param2")
+	require.Error(t, err)
+	paramVal, err := created.GetParam("param1")
+	require.NoError(t, err)
+	assert.Equal(t, paramVal, "val1")
+
 	assert.NoError(t, created.End())
+	assert.NoError(t, created.Fail())
 }
